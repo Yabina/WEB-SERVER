@@ -21,8 +21,11 @@ app.use(bodyParser.json());
 // ROUTE-HANDLING MIDDLEWARE FUNCTIONS
 // ************************************
 
-// Handle routes for tasks.
+// Partial API endpoints.
+app.use('/api/auth', authRoutes); // http://localhost:3000/api/auth
+app.use('/api/user', userRoutes); // http://localhost:3000/api/user
 app.use('/tasks', tasksRoutes); // http://localhost:3000/tasks
+
 // app.use('/users', usersRoutes); // http://localhost:3000/users
 
 // Handle 404 requests
