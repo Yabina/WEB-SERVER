@@ -13,13 +13,19 @@
  * - id is always first (helps with inserting)
  * - defaults always specifed last (helps with inserting)
  */
-exports.CREATE_TASKS_TABLE = `CREATE TABLE IF NOT EXISTS tasks(
-    id int NOT NULL AUTO_INCREMENT,
-    name varchar(255) NOT NULL,
+exports.CREATE_TASKS_TABLE = `
+CREATE TABLE IF NOT EXISTS tasks (
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    priority INT DEFAULT 1,
+    due_date DATE,
     created_date DATETIME DEFAULT CURRENT_TIMESTAMP(),
-    status varchar(10) DEFAULT 'pending',
+    status ENUM('pending', 'in_progress', 'completed') DEFAULT 'pending',
     PRIMARY KEY (id)
-  )`;
+)
+`;
+
   
   // Get every task
   exports.ALL_TASKS = `SELECT * FROM tasks`;
