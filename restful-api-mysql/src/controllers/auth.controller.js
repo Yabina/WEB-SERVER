@@ -57,6 +57,7 @@ exports.login =async (req, res) => {
     const con = await connection().catch((err) => {
         throw err;
     });
+    
     //check for existing user first
     const user = await query(con, GET_ME_BY_USERNAME_WITH_PASSWORD, [
         req.body.username,
