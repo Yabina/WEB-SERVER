@@ -1,10 +1,10 @@
 const express = require('express');
-const cors = requires('cors')
+const cors = require('cors')
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 
-const authRoutes = requires('./routes/auth.routes')
-const userRoutes = requires('./routes/user.routes')
+const authRoutes = require('./routes/auth.routes')
+const userRoutes = require('./routes/user.routes')
 const tasksRoutes = require('./routes/tasks.routes');
 const middleware = require('./middleware/errors.middleware');
 

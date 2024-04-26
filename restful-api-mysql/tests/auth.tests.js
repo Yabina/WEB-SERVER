@@ -71,4 +71,21 @@ describe('Auth API Services', function() {
             done();
         });
     });
+
+it("should delete user", (done) => {
+    chai
+      .request("http://localhost:3000")
+      .delete("/api/auth/delete")
+      .send({
+        userName: "mochatest",
+        userPassword: "test",
+        userEmail: "test@mocha.com",
+      })
+      .end((_, resp) => {
+        console.log(resp.text);
+        expect(resp.body.userEmail).to.be.equal("test@mocha.com");
+        done();
+      });
+  });
+ 
 });

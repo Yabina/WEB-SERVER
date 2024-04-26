@@ -61,4 +61,21 @@ describe('Tasks API Services', function() {
             done();
 });
     });
+
+    it("should delete a single task", (done) => {
+
+      const expected = { message: 'Add task successfully!'};
+      
+        chai
+          .request("http://localhost:3000")
+          .delete("/api/tasks/1")
+          
+          .end((_, resp) => {
+            console.log(resp.text);
+            expect(resp.status).to.be.eql(200);
+            expect(resp.body.name).to.be.eql(expected);
+            done();
+          });
+      });
+     
 });
