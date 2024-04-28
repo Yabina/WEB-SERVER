@@ -53,7 +53,7 @@ describe('Tasks API Services', function() {
        
      chai
         .request('http://localhost:3000')
-        .get('/api/tasks')
+        .get('/api/tasks/createTask')
         .send(newTask)
         .end(function (err, resp) {
             expect(resp.status).to.be.eql(200);
@@ -62,6 +62,25 @@ describe('Tasks API Services', function() {
 });
     });
 
+    it('should PUT a single task', function (done) {
+        const updateTask =
+            {
+                
+                name: "Task has been Updated!",
+            
+            };
+            const expected = { message: 'Updated task successfully!'};
+       
+     chai
+        .request('http://localhost:3000')
+        .get('/api/tasks/updateTask')
+        .send(updateTask)
+        .end(function (err, resp) {
+            expect(resp.status).to.be.eql(200);
+            expect(resp.body).to.be.eql(expected);
+            done();
+});
+    });
     it("should delete a single task", (done) => {
 
       const expected = { message: 'Add task successfully!'};

@@ -33,17 +33,32 @@ app.use(cors());
 // Partial API endpoints.
 app.use('/api/auth', authRoutes); // http://localhost:3000/api/auth
 app.use('/api/user', userRoutes); // http://localhost:3000/api/user
-//app.use('/tasks', tasksRoutes); // http://localhost:3000/tasks
+app.use('/api/tasks', tasksRoutes); // http://localhost:3000/tasks
 
 // app.use('/users', usersRoutes); // http://localhost:3000/users
 
 // Handle 404 requests
+function error404() {
+    console.log("404 Not Found");
+    // You can add more logic here if needed
+}
+
 app.use(error404); // http://loaclhost:3000/users
 
 // Handle 500 requests - applies mostly to live services
+function error500() {
+  console.log("500 Not Found");
+  // You can add more logic here if needed
+}
 app.use(error500);
 
 // listen on server port
 app.listen(port, function() {
   console.log(`Running on port: ${port}...`);
 });
+
+
+
+
+
+

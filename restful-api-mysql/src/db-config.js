@@ -11,13 +11,13 @@ const host = process.env.DB_HOST || 'localhost';
 const user = process.env.DB_USER || 'root';
 
 // Get the Password for DB from Environment or use default
-const password = process.env.DB_PASS || 'password';
+const password = process.env.DB_PASS || 'password'; // Change the password
 
 // Get the Database from Environment or use default
 const database = process.env.DB_DATABASE || 'tododb';
 
 // Get the Port from Environment or use default
-//const port = process.env.DB_PORT || '3306';
+const port = process.env.DB_PORT || '3306';
 
 // Create the connection with required details
 module.exports = async (params) => {
@@ -42,6 +42,9 @@ if(!!userTableCreated && !!tasksTableCreated) {
 }
 });
 };
+
+
+
 // Connect to the database.
 //con.connect(function(err) {
  // if (err) throw err;

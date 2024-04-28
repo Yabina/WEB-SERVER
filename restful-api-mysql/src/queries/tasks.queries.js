@@ -28,31 +28,31 @@ exports.CREATE_TASKS_TABLE = `CREATE TABLE IF NOT EXISTS tasks (
        ON DELETE CASCADE
 )`;
 
-  
-  // Get every task
-  exports.ALL_TASKS = (userId) => `SELECT * FROM tasks WHERE user_id = ${userId}`;
-  
-  // Get a single task by id
-  exports.SINGLE_TASKS = (userId, taskId) => `SELECT * FROM tasks WHERE user_id = ${userId} AND task_id = ${taskId}`;
-  
-  /**
-   * Insert follows syntax:
-   * - INSERT INTO <table_name>(<col_name1>, <col_name3>, <col_name3>, ...)
-   *    VALUES(<value1>, <value2>, <value3>, ...)
-   *
-   * Create a new task in `tasks` table where
-   * - column names match the order the are in the table
-   * - `?` allow us to use params in our controllers
-   */
-  exports.INSERT_TASK = (userId, taskName) => `INSERT INTO tasks (user_id, task_name) VALUES (${userId}, ${taskName})`;
-  
-  /**
-   * Update follows syntax:
-   * - UPDATE <table_name> SET <colum_name> = '<new_value>' WHERE <colum_name> = '<old_value>'
-   *
-   * NOTE: omitting `WHERE` will result in updating every existing entry.
-   */
-  exports.UPDATE_TASK = (userId, taskId, newValues) => `UPDATE tasks SET ${newValues} WHERE user_id = ${userId} AND task_Id = ${taskId}`;
-  
-  // Delete a task by id
-  exports.DELETE_TASK = (userId, taskId) => `DELETE FROM tasks WHERE user_id = ${userId} AND task_id = ${taskId}`;
+
+// Get every task
+exports.ALL_TASKS = (userId) => `SELECT * FROM tasks WHERE user_id = ${userId}`;
+
+// Get a single task by id
+exports.SINGLE_TASKS = (userId, taskId) => `SELECT * FROM tasks WHERE user_id = ${userId} AND task_id = ${taskId}`;
+
+/**
+ * Insert follows syntax:
+ * - INSERT INTO <table_name>(<col_name1>, <col_name3>, <col_name3>, ...)
+ *    VALUES(<value1>, <value2>, <value3>, ...)
+ *
+ * Create a new task in `tasks` table where
+ * - column names match the order the are in the table
+ * - `?` allow us to use params in our controllers
+ */
+exports.INSERT_TASK = (userId, taskName) => `INSERT INTO tasks (user_id, task_name) VALUES (${userId}, ${taskName})`;
+
+/**
+ * Update follows syntax:
+ * - UPDATE <table_name> SET <colum_name> = '<new_value>' WHERE <colum_name> = '<old_value>'
+ *
+ * NOTE: omitting `WHERE` will result in updating every existing entry.
+ */
+exports.UPDATE_TASK = (userId, taskId, newValues) => `UPDATE tasks SET ${newValues} WHERE user_id = ${userId} AND task_Id = ${taskId}`;
+
+// Delete a task by id
+exports.DELETE_TASK = (userId, taskId) => `DELETE FROM tasks WHERE user_id = ${userId} AND task_id = ${taskId}`;

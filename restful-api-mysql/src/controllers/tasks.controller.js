@@ -8,7 +8,9 @@ const {
   DELETE_TASK,
 } = require("../queries/tasks.queries");
 const query = require("../utils/query");
-const { serverError } = require("../utils/handlers");
+const {
+  serverError
+} = require("../utils/handlers");
 
 /**
  * CRUD - Create, Read, Update, Delete
@@ -19,17 +21,24 @@ const { serverError } = require("../utils/handlers");
  */
 
 exports.getAllTasks = async (req, res) => {
+
+  console.log("inside get all task..", req.params.userId);
   //establish connection
   const con = await connection().catch((err) => {
     throw err;
   });
   //query all tasks
-  const task = await query(con, ALL_TASKS(req.user.id), []).catch(
+  userId  = req.params.userId;
+  const task = await query(con, ALL_TASKS(userId), []).catch(
     serverError(res)
   );
   // [] === true, 0 === false
-  if (!task.length) {
-    res.status(400).json({ msg: "No tasks available for this user." });
+
+  console.log(task, "task list..........................");
+  if (task.length <= 0)  {
+    res.status(400).json({
+      msg: "No tasks available for this user."
+    });
   }
   res.json(task);
 };
@@ -43,6 +52,7 @@ exports.getAllTasks = async (req, res) => {
 
 // http://localhost:3000/tasks/1
 exports.getTask = async (req, res) => {
+  console.log(req.body, "get task..");
   //establish connection
   const con = await connection().catch((err) => {
     throw err;
@@ -54,7 +64,9 @@ exports.getTask = async (req, res) => {
   ).catch(serverError(res));
 
   if (!task.length) {
-    res.status(400).json({ msg: "No tasks available for this user." });
+    res.status(400).json({
+      msg: "No tasks available for this user."
+    });
   }
   res.json(task);
 };
@@ -75,9 +87,13 @@ exports.getTask = async (req, res) => {
  * }
  */
 exports.createTask = async (req, res) => {
+  console.log("Create Task..", req.body);
   //verify valid token
-  const user = req.user; // {id:1, iat:wlenfwekl, expiredIn:9174323}
-
+  // const user = req.body.user; // {id:1, iat:wlenfwekl, expiredIn:9174323}
+  const user = {
+    id: req.body.user_id
+  }
+  console.log(req.body)
   // take result of middleware check
   if (user.id) {
     //establish connection
@@ -90,13 +106,16 @@ exports.createTask = async (req, res) => {
     const result = await query(con, INSERT_TASK(user.id, taskName)).catch(
       serverError(res)
     );
-
     if (result.affectedRows !== 1) {
       res
         .status(500)
-        .json({ message: `Unable to add task: ${req.body.task_name}` });
+        .json({
+          message: `Unable to add task: ${req.body.task_name}`
+        });
     }
-    res.json({ msg: "Added task successfully!" });
+    res.json({
+      msg: "Added task successfully!"
+    });
   }
 };
 
@@ -134,6 +153,7 @@ const _buildValuesString = (req) => {
  * }
  */
 exports.updateTask = async (req, res) => {
+  console.log(req.body, "update task.");
   //establish connection
   const con = await connection().catch((err) => {
     throw err;
@@ -148,9 +168,11 @@ exports.updateTask = async (req, res) => {
   if (result.affectedRows !== 1) {
     res
       .status(500)
-      .json({ msg: `Unable to update task: '${req.body.task_name}'` });
-  }
-  res.json(result);
+      .json({
+        msg: `Unable to update task: '${req.body.task_name}'`
+      });
+  } else {res.json(result);}
+  
 };
 
 // (req, res) => {
@@ -169,6 +191,7 @@ exports.updateTask = async (req, res) => {
 // http://localhost:3000/tasks/1
 
 exports.deleteTask = async (req, res) => {
+  console.log(req.body,"delete task.....");
   //establish connection
   const con = await connection().catch((err) => {
     throw err;
@@ -176,15 +199,19 @@ exports.deleteTask = async (req, res) => {
   //query to delete a task
   const result = await query(
     con,
-    DELETE_TASK(req.user.id, req.params.taskId, values)
+    DELETE_TASK(req.params.userId, req.params.taskId)
   ).catch(serverError(res));
 
   if (result.affectedRows !== 1) {
     res
       .status(500)
-      .json({ msg: `Unable to delete task at: '${req.params.taskId}'` });
+      .json({
+        msg: `Unable to delete task at: '${req.params.taskId}'`
+      });
   }
-  res.json({ message: "Deleted successfully!" });
+  res.json({
+    message: "Deleted successfully!"
+  });
 };
 
 // (req, res) => {

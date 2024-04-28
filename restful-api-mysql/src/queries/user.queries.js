@@ -1,8 +1,8 @@
-exports.CREATE_USERS_TABLE = `CREATE TABLE IF NOT EXIXTS users(
-    user_id int NOT NULL AUTO_INCREMENT,
-    username varchar(255) NOT NULL UNIQUE,
-    email varchar(255) NOT NULL,
-    password varchar(255) NOT NULL,
+exports.CREATE_USERS_TABLE = `CREATE TABLE IF NOT EXISTS users (
+    user_id INT NOT NULL AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     PRIMARY KEY (user_id)
 )`;
 exports.GET_ME_BY_USER_ID = 'SELECT user_id, username, email FROM users WHERE user_id = ?'; // don't return the password

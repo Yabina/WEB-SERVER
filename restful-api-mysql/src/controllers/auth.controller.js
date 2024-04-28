@@ -14,6 +14,7 @@ const { refreshTokens, generateToken, generateRefreshToken} =require('../utils/j
 //const userQueries = require ('../queries/user.queries');
 //exports.registerUser = function (req, res, next) {
 exports.register = async (req, res) => {
+    console.log(req.body, "text")
     //params setup
    // if(!req.body.password) {
    //     res.status(500);
@@ -25,6 +26,8 @@ exports.register = async (req, res) => {
 
     // establish a connection
     const con = await connection().catch((err) => {
+
+        console.log(err, "sql errr..............")
         throw err;
     });
 
@@ -34,6 +37,8 @@ exports.register = async (req, res) => {
         res.send({msg: 'Could not retrieve user.'});
     });
 
+
+    
     // if we get one result back
     if (user.length === 1) {
         res.status(403).send({ msg: 'User already exists!'});
@@ -67,7 +72,7 @@ exports.login =async (req, res) => {
     });
 
     //if the user exists
-    if (user.length ===1) {
+    if (user.length === 1) {
         // validate entered password from database saved password
         const validPass = await bcrypt
         .compare(req.body.password, user[0].password)
@@ -81,7 +86,7 @@ exports.login =async (req, res) => {
             // create token
             const accessToken = generateToken(user[0].user_id, { expiresIn: 86400 });
             const refreshToken = generateRefreshToken(user[0].user_id, { expiresIn: 86400 });
-
+            const userId =  user[0].user_id;
             refreshTokens.push(refreshToken);
 
             res
@@ -93,6 +98,7 @@ exports.login =async (req, res) => {
                 access_token: accessToken,
                 expires_in: 86400,
                 refresh_token: refreshToken,
+                user_id : userId,
             });
         }
     };
