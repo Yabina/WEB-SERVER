@@ -73,7 +73,7 @@ describe('Tasks API Services', function() {
        
      chai
         .request('http://localhost:3000')
-        .get('/api/tasks/updateTask')
+        .put('/api/tasks/1')
         .send(updateTask)
         .end(function (err, resp) {
             expect(resp.status).to.be.eql(200);

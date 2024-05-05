@@ -68,4 +68,49 @@ it('should PUT updated credetials for a logged in user', (done) => {
             done();
         });
     });
+    it.skip('should PUT updated credentials for a logged in user', (done) => {
+        // Test code for updating user credentials...
+    });
+
+    it('should PUT updated credentials for a logged in user', (done) => {
+        const updatedUser = {
+            username: 'admin',
+            password: 'password',
+            email: 'admin@example.com',
+        };
+        const expected = {
+            message: 'Nothing to update...'
+        };
+      
+        chai
+        .request('http://localhost:3000')
+        .put('/api/user/me/update')
+        .set('Authorization', `Bearer ${token}`)
+        .send(updatedUser)
+        .end((err, resp) => {
+            expect(resp.body).to.eql(expected);
+            done();
+        });
+    });
+
+    it('should PUT updated credentials for a logged in user', (done) => {
+        const updatedUser = {
+            username: 'admin',
+            password: 'password',
+            email: 'admin@example.com',
+        };
+        const expected = {
+            msg: 'Updated successfully'
+        };
+       
+        chai
+        .request('http://localhost:3000')
+        .put('/api/user/me/update')
+        .set('Authorization', `Bearer ${token}`)
+        .send(updatedUser)
+        .end((err, resp) => {
+            expect(resp.body).to.eql(expected);
+            done();
+        });
+    });
 });
