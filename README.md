@@ -1,12 +1,9 @@
-# Module 7 - Unit Test and API Integration
+# Module 8 - Finishing with Web Frameworks
 
-Set up a test framework for unit testing client and non-client JavaScript.
-
-Finally got everything to work
-- Used the same form teacher used but Added Update Task
-- Added a test for Update Task
-- Added Edit button with Prompts for EDIT
-
+Followed video to place the new updates to the Backend
+Added the update user and task functions for updating Profile and tasks
+Added Escape.js 
+Debugged errors encountered and got it to work
 
 
 

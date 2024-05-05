@@ -1,99 +1,90 @@
-//const jwt = require ('jsonwebtoken');
 
-//const con = require ('../db-config');
-//const jwtconfig = require ('../jwt-config');
-//const queries = require ('../queries/user.queries');
 const bcrypt = require ('bcryptjs');
 const connection = require ('../db-config');
 const query = require ('../utils/query');
 const {
-    GET_ME_BY_USERNAME,
-    GET_ME_BY_USERNAME_WITH_PASSWORD,
-    INSERT_NEW_USER,
+    GET_ME_BY_USER_ID,
+    GET_ME_BY_USER_ID_WITH_PASSWORD,
+    UPDATE_USER,
 } = require ('../queries/user.queries');
-
+const escape = require('../utils/escape');
 
 exports.getMe = async (req, res) => {
-
-const decoded = req.user;
-
-   // const token = req.headers['auth-token'];
-
-  if (decoded.id) {
-    // establish a connection
-    const con = await connection().catch((err) => {
-        throw err;
-    });
-    const user = await query (con, GET_ME_BY_USER_ID, [decoded.id]).catch(
-        (err) => {
-            res.status(500).json({ msg: 'Could not find the user.'});
+    //verify valid token
+    const user = req.user;
+    //take result of middleware check
+    if(user.id) {
+        const con = await connection().catch((err) => {
+            throw err;
+        });
+        const existingUser = await query(con, GET_ME_BY_USER_ID(user.Id)).catch(
+            (err) =>{
+                res.status(500).json({msg: 'Could not find the user.'});
+            }
+        );
+        if (existingUser.length) {
+            res.status(200).send(existingUser);
+        } else{
+            res.status(400).json({ msg: 'No user found.'});
         }
-    );
-    if(!user.length) {
-        res.status(400).json({msg: 'No user found.'});
-    }
+        }
+    };
 
-    res.status(200).send(user);
-   }
-};
+
 exports.updateMe = async (req, res) => {
     // establish a connection
     const con = await connection().catch((err) => {
         throw err;
     });
     // check for existing user first
-    const user = await query(con, GET_ME_BY_USER_ID_WITH_PASSWORD, [
+    const [existingUser] = await query(con, GET_ME_BY_USER_ID_WITH_PASSWORD, [
         req.user.id,
     ]).catch((err) => {
         res.status(500);
         res.json({ msg: 'Could not retrive user.'});
     });
+    const{
+        username: existingUsername,
+        email: existingEmail,
+        password: existingPassword,
+    }= existingUser;
+    const { username, email, password } =req.body;
+
     // checked for password changed
     // SAME LOGIC AS CHECKING FOR A VALID PASSWORD
     const passwordUnchanged = await bcrypt
-    .compare(req.body.password, user[0].password)
+    .compare(password, existingPassword)
     .catch((err) => {
-        res.json(500).json({ msg: 'Invalid password!'});
+        console.log(err);
+        res.status(500).json({ msg: 'Invalid password!'});
     });
 
-    if(!passwordUnchanged) { 
-        const passwordHash = bcrypt.hashSync(req.body.password);
+        const newUser = username || existingUsername;
+        const newEmail = email || existingEmail;
+        const newPassword = ! PasswordUnchanged 
+        ? bcrypt.hashSync(password)
+        : existingPassword;
 
-        // perform update
-        const result = await query(con, UPDATE_USER, [
-            req.body.username,
-            req.body.email,
-            passwordHash,
-            user[0].id,
-        ]).catch((err) => {
-            res.status(500).send({ msg: 'Could not update user settings.' });
+        const {
+            newUser: escapedUsername,
+            newEmail: escapedEmail,
+            newPassword: escapedPassword,
+        } = escape( {
+            newUser,
+            newEmail,
+            newPassword,
+        });
+        //perform update
+        const result = await query( con,
+            UPDATE_USER(escapedUsername, escapedEmail,escapedPassword, req.user.id)
+        ).catch((err) => {
+            console.log(err);
+            res.status(500).json({ msg: 'Could not update user settings.'});
         });
 
         if(result.affectedRows === 1) {
             res.json({ msg: 'Updated successfuly!' });
-        }
+        } else{
         res.json({ msg: 'Nothing to update ...'});
     }
 };
-//    jwt.verify(token, jwtconfig.secret, function(err, decoded) {
-//     if (err) {
-//         res
-//         .status(500)
-//         .send({ auth: false, message: 'Failed to authenticate token.' });
-//     }
-
-//     con.query(queries.GET_ME_BY_USER_ID, [decoded.id], function(err, user) {
-//         if (err){
-//             res
-//             .status(500)
-//             .send({ msg:  'Could no find the user.' });
-//         }
-//         if (!user){
-//             res
-//             .status(400)
-//             .send({ msg:  'No user found.' });
-//         }
-//         res.status(200).send(user);
-//     });
-//    });
-// };

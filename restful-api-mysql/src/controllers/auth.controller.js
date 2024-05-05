@@ -9,20 +9,17 @@ const {
 } = require ('../queries/user.queries');
 const query = require ('../utils/query');
 const { refreshTokens, generateToken, generateRefreshToken} =require('../utils/jwt-helpers');
-//const jwtconfig = require ('../jwt-config');
-//const authQueries = require ('../queries/auth.queries');
-//const userQueries = require ('../queries/user.queries');
-//exports.registerUser = function (req, res, next) {
+const escape = require(' ../utils/escape')
+
+//register function
 exports.register = async (req, res) => {
     console.log(req.body, "text")
-    //params setup
-   // if(!req.body.password) {
-   //     res.status(500);
-    //    res.json({msg: 'Password cannot be empty!'});
-   //     next();
-  //  }
+    //param setup
     const passwordHash =bcrypt.hashSync (req.body.password);
-    const params = [req.body.username, req.body.email, passwordHash];
+    const { username, email, password } = escape ({
+        ...req.body,
+        password:passwordHash,
+    });
 
     // establish a connection
     const con = await connection().catch((err) => {
@@ -32,57 +29,65 @@ exports.register = async (req, res) => {
     });
 
     // check for existing user frist
-    const user =await query(con, GET_ME_BY_USERNAME, [req.body.username]).catch((err)=> {
+    const user =await query(con, GET_ME_BY_USERNAME, (username)).catch((err)=> {
         res.status(500);
-        res.send({msg: 'Could not retrieve user.'});
+        res.json({msg: 'Could not retrieve user.'});
     });
-
-
     
     // if we get one result back
     if (user.length === 1) {
-        res.status(403).send({ msg: 'User already exists!'});
+        res.status(403).json({ msg: 'User already exists!'});
     } else {
         //add new user
-        const result = await query(con, INSERT_NEW_USER, params).catch((err) => {
+        const result = await query(con, INSERT_NEW_USER(username, email, password)).catch((err) => {
+            console.log(err);
             // stop registeration
             res
             .status(500)
             .send({ msg: 'Could not register user. Please try again later.'});
         });
 
-        if (!!result) {
-            res.send({ msg: 'New user created!'});
+        if (result.affectedRows === 1) {
+            res.json({ msg: 'New user created!'});
         }
     }
 };
 
-exports.login =async (req, res) => {
+//login function
+
+exports.login =async (req, res) => {   
+    
+    const { username } = escape(req.body);
+    const { password } =req.body;
+    
     // establish a connection
+
     const con = await connection().catch((err) => {
         throw err;
     });
     
     //check for existing user first
-    const user = await query(con, GET_ME_BY_USERNAME_WITH_PASSWORD, [
-        req.body.username,
-    ]).catch((err) => {
+    const user = await query(con, 
+        GET_ME_BY_USERNAME_WITH_PASSWORD (username)
+    ).catch((err) => {
+        console.log(err);
         res.status(500);
-        res.send({ msg: 'COuld not retrieve user.'});
+        res.json({ msg: 'COuld not retrieve user.'});
     });
 
     //if the user exists
     if (user.length === 1) {
         // validate entered password from database saved password
         const validPass = await bcrypt
-        .compare(req.body.password, user[0].password)
+        .compare(password, user[0].password)
         .catch((err) => {
-            res.json(500).json({ msg: 'Invalid password!'});
+            console.log(err);
+            res.status(500).json({ msg: 'Invalid password!'});
         });
 
         if(!validPass) {
-            res.status(400).send({ msg: 'Invalid password'});
-        } else {
+            res.status(400).json({ msg: 'Invalid password'});
+        } 
             // create token
             const accessToken = generateToken(user[0].user_id, { expiresIn: 86400 });
             const refreshToken = generateRefreshToken(user[0].user_id, { expiresIn: 86400 });
@@ -91,7 +96,7 @@ exports.login =async (req, res) => {
 
             res
             .header('access_token', accessToken) //ex.: {'auth-token: '  '}
-            .send({
+            .json({
                 auth:true,
                 msg: 'Logged in!',
                 token_type: 'bearer',
@@ -100,9 +105,13 @@ exports.login =async (req, res) => {
                 refresh_token: refreshToken,
                 user_id : userId,
             });
+        } else {
+            res
+            .status(401)
+            .json({ auth: false, msg: 'Access Denied. No token provided.'});
         }
     };
-};
+
 exports.token = (req, res) => {
         const refreshToken = req.body.token;
 
@@ -110,7 +119,7 @@ exports.token = (req, res) => {
         if (!refreshToken) {
             res
             .status(401)
-            .send({
+            .json({
                 auth:false,
                 msg: 'Access Denied.No token provided'});
             }
@@ -119,7 +128,7 @@ exports.token = (req, res) => {
             if (!refreshTokens.includes(refreshToken)) {
                 res
                 .status(403)
-                .send({
+                .json({
                     msg: 'Invalid Refresh Token' });
                 }
     
@@ -130,7 +139,7 @@ exports.token = (req, res) => {
     
                 res
                 .header('access_token', accessToken) //ex.: {'auth-token: '  '}
-                .send({
+                .json({
                     auth:true,
                     msg: 'Logged in!',
                     token_type: 'bearer',
@@ -139,14 +148,14 @@ exports.token = (req, res) => {
                     refresh_token: refreshToken,
     });
 }
-    res.status(403).send({ msg: 'Invalid Taken'});
+    res.status(403).json({ msg: 'Invalid Taken'});
 };
 exports.logout = (re,res) => {
        // const { token } = req.body;
        const refreshToken = req.body.token;
-        refreshTokens = refreshTokens.filter((t) => t !== token);
+        refreshTokens = refreshTokens.filter((t) => t !== refreshToken);
 
-        res.send('Logout successful');
+        res.json({msg: 'Logout successful'});
 };
 
 
